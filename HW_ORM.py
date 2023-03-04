@@ -28,17 +28,9 @@ for record in data:
 session.commit()
 session.close()
 
-subq = session.query(Publisher).filter(Publisher.id == input("Введите id издателя ")).subquery()
-q = session.query(Book).join(subq, Book.id == subq.c.id_publisher)
-for s in q.all():
-    print(s.id, s.title)
-    for p in s.publisher:
-        print("\t", p.id, p.name)
-
-# subq = session.query(Homework).filter(Homework.description.like("%сложн%")).subquery("simple_hw")
-# q = session.query(Course).join(subq, Course.id == subq.c.course_id)
-# print(q)
-# for s in q.all():
-#     print(s.id, s.name)
-#     for hw in s.homeworks:
-#         print("\t", hw.id, hw.number, hw.description)
+condition = Publisher.id == input("Введите id издателя ")
+q = session.query(Book.title, Shop.name, Sale.price, Sale.count, Sale.date_sale).\
+    join(Publisher).join(Stock).join(Sale).join(Shop).\
+        filter(condition).order_by(Sale.date_sale)
+for book, shop, price, count, date in q:
+        print(f'{book:<40} | {shop:<10} | {price*count:<8} | {date}')
